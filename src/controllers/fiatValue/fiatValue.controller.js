@@ -22,12 +22,16 @@ const get = async (req, res) => {
       tokenAddresses.length &&
       (await coingecko.getTokenPrice(tokenAddresses, currencyList));
 
-    tokenPrice &&
-      tokenPrice.length &&
-      client.set(
+    tokenPrice.data &&
+      tokenPrice.data.length &&
+      (await req.redisClient.set(
         req.path + req.query.currencyList.toString(),
-        JSON.stringify(tokenPrice.data)
-      );
+        JSON.stringify(tokenPrice.data),
+        {
+          EX: 60 * 60 * 24,
+          NX: true,
+        }
+      ));
 
     return res.status(200).send(tokenPrice);
   } catch (error) {

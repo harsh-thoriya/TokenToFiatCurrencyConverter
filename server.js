@@ -6,17 +6,17 @@ const port = 80;
 
 const app = express();
 let redisConnection;
-const server = app.listen(port, () => {
-  let redisClient = redis.createClient();
-  redisClient.on("error", (err) => console.log("Redis Client Error", err));
-  redisConnection = redisClient.connect();
-  console.log(`App listening on port ${port}`);
+const server = app.listen(port, async () => {
+  redisConnection = redis.createClient();
+  redisConnection.on("error", (err) => console.log("Redis Client Error", err));
+  await redisConnection.connect();
+  console.log(`App listening on port ${port}`, redisConnection);
 });
 
 app.use(
   "/",
   (req, res, next) => {
-    req.redisClient = redisClient;
+    req.redisClient = redisConnection;
     next();
   },
   routes
