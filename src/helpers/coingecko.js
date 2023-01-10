@@ -1,16 +1,18 @@
 const CoinGecko = require("coingecko-api");
 
-const getTokenPrice = (tokenAddresses, currencyList) => {
+const getTokenPrice = async (tokenAddresses, currencyList) => {
   try {
     const coinGeckoClient = new CoinGecko();
 
-    let tokenDetails = coinGeckoClient.simple.fetchTokenPrice({
+    let tokenDetails = await coinGeckoClient.simple.fetchTokenPrice({
       contract_addresses: tokenAddresses,
       vs_currencies: currencyList,
     });
+
     return tokenDetails;
   } catch (error) {
-    return error;
+    console.log("Errr", error);
+    return new Error(error);
   }
 };
 

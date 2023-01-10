@@ -10,14 +10,28 @@ const get = async (req, res) => {
       return record.address;
     });
 
+    const cachedData = await req.redisClient.get(
+      req.path + req.query.currencyList.toString()
+    );
+    if (cachedData) {
+      return res.status(200).send(JSON.parse(cachedData));
+    }
+
     let tokenPrice =
       tokenAddresses &&
       tokenAddresses.length &&
       (await coingecko.getTokenPrice(tokenAddresses, currencyList));
 
-    res.status(200).send(tokenPrice);
+    tokenPrice &&
+      tokenPrice.length &&
+      client.set(
+        req.path + req.query.currencyList.toString(),
+        JSON.stringify(tokenPrice.data)
+      );
+
+    return res.status(200).send(tokenPrice);
   } catch (error) {
-    res.status(400).send("Error Occurred. Please Try Again Later");
+    return res.status(400).send("Error Occurred. Please Try Again Later");
   }
 };
 
